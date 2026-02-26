@@ -6,6 +6,6 @@ type ProvidersProps = {
   children: React.ReactNode
 }
 
-export function Providers({ children }: ProvidersProps) {
+export const Providers = ({ children }: ProvidersProps) => {
   return <ApolloProvider>{children}</ApolloProvider>
 }

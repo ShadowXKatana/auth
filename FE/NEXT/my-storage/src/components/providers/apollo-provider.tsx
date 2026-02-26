@@ -7,6 +7,6 @@ type ApolloProviderProps = {
   children: React.ReactNode
 }
 
-export function ApolloProvider({ children }: ApolloProviderProps) {
+export const ApolloProvider = ({ children }: ApolloProviderProps) => {
   return <ApolloNextAppProvider makeClient={makeApolloClient}>{children}</ApolloNextAppProvider>
 }
