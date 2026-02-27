@@ -51,6 +51,24 @@ Optional seed user for login:
 Auth ใช้ REST API เท่านั้น ส่วน GraphQL (`/graphql`) แยกไว้สำหรับ use case อื่น.
 Auth persistence ใช้ PostgreSQL ผ่าน GORM (`auth_users` table)
 
+## Database Schema (Redesigned)
+
+Migration อยู่ที่ `DB/migrations` โดยโครงสร้างหลักแบ่งเป็น:
+
+- `auth_users`: ผู้ใช้งานระบบ auth
+- `auth_user_profiles`: โปรไฟล์ผู้ใช้แบบ 1:1 กับ `auth_users`
+- `auth_refresh_tokens`: เก็บ refresh token แบบ hash เพื่อรองรับ revocation/session management
+- `storages`: ข้อมูล storage ของผู้ใช้ (1 ผู้ใช้มีหลาย storage ได้)
+- `storage_items`: รายการ item ภายใน storage
+- `storage_tags`: master tag
+- `storage_item_tags`: ตารางเชื่อม many-to-many ระหว่าง item และ tag
+
+หมายเหตุ:
+
+- ใช้ `UUID` เป็น primary key ทุกตารางหลัก
+- ใช้ `TIMESTAMPTZ` สำหรับ field เวลาเพื่อให้ timezone-safe
+- ใช้ `ON DELETE CASCADE` ในความสัมพันธ์หลักเพื่อลด orphan rows
+
 ## Register / Login Payload
 
 ```json

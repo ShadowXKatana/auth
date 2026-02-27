@@ -1,5 +1,8 @@
 # auth
+
 next js, go
 
+DB Diagram source (DBML): ./DB/dbdiagram.dbml
+dbdiagram.io: https://dbdiagram.io/
 
-DB: https://dbdiagram.io/d/699f1274bd82f5fce2d17c69
+https://dbdiagram.io/d/69a11340a3f0aa31e141f961
