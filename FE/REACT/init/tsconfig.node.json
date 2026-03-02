@@ -1,12 +1,12 @@
 {
     "compilerOptions": {
+        "composite": true,
         "target": "ES2022",
         "lib": [
             "ES2023"
         ],
         "types": [
-            "node",
-            "jest"
+            "node"
         ],
         "module": "ESNext",
         "skipLibCheck": true,
