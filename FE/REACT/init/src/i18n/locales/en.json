@@ -1,0 +1,22 @@
+{
+    "nav": {
+        "page1": "Page 1",
+        "page2": "Page 2"
+    },
+    "common": {
+        "language": "Language",
+        "switchLang": "Switch to Thai"
+    },
+    "home": {
+        "title": "To get started, edit the App.tsx file.",
+        "description": "Looking for a starting point or more instructions?"
+    },
+    "page1": {
+        "title": "Page 1",
+        "description": "This is an example page demonstrating route separation with i18n support."
+    },
+    "page2": {
+        "title": "Page 2",
+        "description": "This is another example page demonstrating route separation with i18n support."
+    }
+}
