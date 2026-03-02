@@ -5,7 +5,8 @@
             "ES2023"
         ],
         "types": [
-            "node"
+            "node",
+            "jest"
         ],
         "module": "ESNext",
         "skipLibCheck": true,
