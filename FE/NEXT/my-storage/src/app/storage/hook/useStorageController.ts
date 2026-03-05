@@ -1,18 +1,66 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { api } from '@/lib/api'
+
 type StorageItem = {
   id: string
+  userId: string
   name: string
-  sizeMb: number
+  createdAt: string
   updatedAt: string
 }
 
 export const useStorageController = () => {
-  const items: StorageItem[] = [
-    { id: '1', name: 'photo-2026-01.png', sizeMb: 2.4, updatedAt: '2026-02-10' },
-    { id: '2', name: 'invoice-001.pdf', sizeMb: 0.8, updatedAt: '2026-02-17' },
-    { id: '3', name: 'presentation.pptx', sizeMb: 12.1, updatedAt: '2026-02-21' },
-  ]
+  const [storages, setStorages] = useState<StorageItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [creating, setCreating] = useState(false)
+
+  const fetchStorages = useCallback(async () => {
+    try {
+      const data = await api.get<StorageItem[]>('/api/v1/storages')
+      setStorages(data ?? [])
+    } catch {
+      setError('Failed to load storages.')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchStorages()
+  }, [fetchStorages])
+
+  const createStorage = async (name: string) => {
+    if (!name.trim()) return
+    setCreating(true)
+    try {
+      await api.post('/api/v1/storages', { name })
+      await fetchStorages()
+    } catch {
+      setError('Failed to create storage.')
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  const deleteStorage = async (id: string) => {
+    try {
+      await api.delete(`/api/v1/storages/${id}`)
+      setStorages((prev) => prev.filter((s) => s.id !== id))
+    } catch {
+      setError('Failed to delete storage.')
+    }
+  }
 
   return {
-    items,
+    storages,
+    loading,
+    error,
+    creating,
+    createStorage,
+    deleteStorage,
   }
 }
+

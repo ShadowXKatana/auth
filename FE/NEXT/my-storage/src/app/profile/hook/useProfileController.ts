@@ -1,28 +1,39 @@
-export type ProfileInfo = {
-  name: string
-  email: string
-  plan: string
-}
+'use client'
 
-type StorageSummary = {
-  usedGb: number
-  totalGb: number
+import { useState, useEffect } from 'react'
+import { authService, type AuthUser } from '@/lib/auth-service'
+
+export type ProfileInfo = {
+  id: string
+  email: string
 }
 
 export const useProfileController = () => {
-  const profile: ProfileInfo = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    plan: 'Pro',
-  }
+  const [profile, setProfile] = useState<ProfileInfo | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  const storage: StorageSummary = {
-    usedGb: 128,
-    totalGb: 256,
-  }
+  useEffect(() => {
+    authService
+      .getMe()
+      .then((user: AuthUser) => {
+        setProfile({
+          id: user.id,
+          email: user.email,
+        })
+      })
+      .catch(() => {
+        setError('Failed to load profile.')
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [])
 
   return {
     profile,
-    storage,
+    loading,
+    error,
   }
 }
+

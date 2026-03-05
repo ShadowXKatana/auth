@@ -7,17 +7,18 @@ import { TextInput } from '@/components/common/text-input'
 import { useLoginController } from '@/app/login/hook/useLoginController'
 
 export const LoginContent = () => {
-  const { form, updateField, handleLogin, handleGoogleLogin } = useLoginController()
+  const { form, error, loading, updateField, handleLogin } = useLoginController()
 
   return (
-    <PageShell title="Login" subtitle="Sign in with username/password or Google.">
+    <PageShell title="Login" subtitle="Sign in to your account.">
       <Card>
         <div className="space-y-4">
           <TextInput
-            label="Username"
-            value={form.username}
-            onChange={(event) => updateField('username', event.target.value)}
-            placeholder="Enter your username"
+            label="Email"
+            type="email"
+            value={form.email}
+            onChange={(event) => updateField('email', event.target.value)}
+            placeholder="Enter your email"
           />
           <TextInput
             label="Password"
@@ -26,21 +27,15 @@ export const LoginContent = () => {
             onChange={(event) => updateField('password', event.target.value)}
             placeholder="Enter your password"
           />
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Button type="button" onClick={handleLogin} className="w-full sm:w-auto">
-              Login
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleGoogleLogin}
-              className="w-full sm:w-auto"
-            >
-              Continue with Google
-            </Button>
-          </div>
+          {error ? (
+            <p className="text-sm text-red-500">{error}</p>
+          ) : null}
+          <Button type="button" onClick={handleLogin} disabled={loading} className="w-full">
+            {loading ? 'Signing in...' : 'Login'}
+          </Button>
         </div>
       </Card>
     </PageShell>
   )
 }
+
