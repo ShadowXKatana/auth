@@ -2,20 +2,25 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
-	userHTTP "github.com/sos/auth/be/go/init-go-gin/internal/delivery/http/handler/user"
-	"github.com/sos/auth/be/go/init-go-gin/internal/delivery/http/router"
-	userRepo "github.com/sos/auth/be/go/init-go-gin/internal/repository/memory/user"
-	userUsecase "github.com/sos/auth/be/go/init-go-gin/internal/usecase/user"
+	handler "github.com/sos/auth/be/go/init-go-gin/internal/handler/http"
+	"github.com/sos/auth/be/go/init-go-gin/internal/repository"
+	"github.com/sos/auth/be/go/init-go-gin/internal/usecase"
 )
 
 func New() *gin.Engine {
 	engine := gin.Default()
 
-	repository := userRepo.NewRepository()
-	usecase := userUsecase.NewUsecase(repository)
-	handler := userHTTP.NewHandler(usecase)
+	// Repositories
+	userRepo := repository.NewUserRepository()
 
-	router.Register(engine, handler)
+	// Usecases
+	userUC := usecase.NewUserUsecase(userRepo)
+
+	// Handlers
+	userHandler := handler.NewUserHandler(userUC)
+
+	// Routes
+	handler.RegisterRoutes(engine, userHandler)
 
 	return engine
 }

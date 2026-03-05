@@ -1,27 +1,27 @@
-package user
+package repository
 
 import (
 	"context"
 	"fmt"
 	"sync"
 
-	domain "github.com/sos/auth/be/go/init-go-gin/internal/domain/user"
+	"github.com/sos/auth/be/go/init-go-gin/internal/domain"
 )
 
-type repository struct {
+type userRepository struct {
 	mu    sync.RWMutex
 	store map[string]domain.User
 	next  int
 }
 
-func NewRepository() domain.Repository {
-	return &repository{
+func NewUserRepository() domain.UserRepository {
+	return &userRepository{
 		store: make(map[string]domain.User),
 		next:  1,
 	}
 }
 
-func (r *repository) Create(_ context.Context, user domain.User) (domain.User, error) {
+func (r *userRepository) Create(_ context.Context, user domain.User) (domain.User, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -32,7 +32,7 @@ func (r *repository) Create(_ context.Context, user domain.User) (domain.User, e
 	return user, nil
 }
 
-func (r *repository) List(_ context.Context) ([]domain.User, error) {
+func (r *userRepository) List(_ context.Context) ([]domain.User, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 

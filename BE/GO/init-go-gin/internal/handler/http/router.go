@@ -1,15 +1,14 @@
-package router
+package http
 
 import (
-	"net/http"
+	nethttp "net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sos/auth/be/go/init-go-gin/internal/delivery/http/handler/user"
 )
 
-func Register(engine *gin.Engine, userHandler *user.Handler) {
+func RegisterRoutes(engine *gin.Engine, userHandler *UserHandler) {
 	engine.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+		c.JSON(nethttp.StatusOK, gin.H{"status": "ok"})
 	})
 
 	v1 := engine.Group("/api/v1")
