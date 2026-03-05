@@ -13,7 +13,7 @@
 FLYWAY          ?= flyway
 FLYWAY_LOCATIONS ?= filesystem:DB/migrations
 
-.PHONY: migrate migrate-down migrate-info migrate-clean
+.PHONY: migrate migrate-down migrate-info migrate-clean react-init
 
 ## Apply all pending versioned migrations
 migrate:
@@ -51,3 +51,18 @@ migrate-clean:
 		-locations="$(FLYWAY_LOCATIONS)" \
 		-cleanDisabled=false \
 		clean
+
+# ---------------------------------------------------------------------------
+# React init template
+# ---------------------------------------------------------------------------
+
+## Copy React (Vite) template to a new project directory
+## Usage: make react-init DEST=FE/REACT/my-new-app
+react-init:
+ifndef DEST
+	$(error DEST is required. Usage: make react-init DEST=FE/REACT/my-new-app)
+endif
+	@echo "Scaffolding React project → $(DEST) …"
+	@mkdir -p $(DEST)
+	@cp -R FE/REACT/init/. $(DEST)/
+	@echo "Done! cd $(DEST) && npm install && npm run dev"
