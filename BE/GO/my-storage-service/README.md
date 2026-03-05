@@ -1,100 +1,108 @@
 # my-storage-service
 
-Go + Gin starter with a lightweight clean architecture structure.
+Core Backend Service หลักของระบบที่พัฒนาด้วย **Go + Gin** พร้อมใช้ **Clean Architecture** (ต่อยอดมาจากโครงสร้าง `init-go-gin`) 
 
-## Structure
+ระบบนี้ให้บริการ 2 ส่วนหลักคือ:
+1. **Authentication:** จัดการผู้ใช้, Login/Register และระบบ JSON Web Token (JWT)
+2. **Storage Management:** จัดการคลังเก็บข้อมูลส่วนตัวของผู้ใช้ (Storage Bucket) และรายการไฟล์ (Items)
 
-- `cmd/server`: application entrypoint
-- `internal/app`: dependency wiring
-- `internal/domain`: entities and interfaces
-- `internal/usecase`: business logic
-- `internal/repository`: data implementations
-- `internal/delivery/http`: handlers and routers
+---
 
-## Run
+## 📁 โครงสร้างโปรเจกต์ (Project Structure)
 
-```bash
-docker compose up -d auth-db
-go mod tidy
-go run ./cmd/server
+```
+my-storage-service/
+├── cmd/api/                  # Application entrypoint
+├── internal/
+│   ├── app/                  # Dependency wiring (ต่อทุก layer เข้าด้วยกัน)
+│   ├── gorm/                 # การเชื่อมต่อ Database และ Auto Migration
+│   ├── domain/               # Entity Models + Repository interfaces (User, Storage, Item)
+│   ├── usecase/              # Business logic ของระบบ Auth และข้อมูล
+│   ├── repository/           # PostgreSQL repositories ผ่าน GORM
+│   └── handler/http/         # HTTP handlers + routes + JWT Middleware
+├── pkg/                      # Utilities ของระบบ (JWT Token Service, Password Hashing)
+└── DB/migrations/            # (ถ้ามี) สำหรับ manage database migration
 ```
 
-Default port is `8080`. You can override with `APP_PORT`.
+---
 
-## Auth Config
+## 🛠 Features หลัก
 
+- **Authentication Module**
+  - Register, Login 
+  - Token-based Authentication (Access Token + Refresh Token via HttpOnly Cookies)
+  - Profile (Me) & Logout
+  - Hash password อย่างปลอดภัย (bcrypt)
+- **Storage Module**
+  - สร้าง, ดูรายการ, ดูรายละเอียด, ลบ Storage
+- **Item Module**
+  - เพิ่ม Items ลงใน Storage, จัดการ Items และ อัปเดต Tags ได้
+- **Security & Database**
+  - Database: PostgreSQL (ผ่าน `gorm`) พร้อม auto-migration ตอนเริ่มแอป
+  - ป้องกัน Route ด้วย JWT Auth Middleware
+
+---
+
+## 🚀 การเริ่มต้นระบบ (Setup & Run)
+
+### Prerequisites
+- Docker & Docker Compose (สำหรับรันฐานข้อมูล PostgreSQL)
+- Go 1.22+
+
+### 1. เริ่มต้น Database
+ใช้ Docker compose ยกฐานข้อมูล PostgreSQL ขึ้นมาทำงานเบื้องหลัง:
+```bash
+docker compose up -d auth-db
+```
+
+### 2. ดาวน์โหลด Dependencies
+```bash
+go mod tidy
+```
+
+### 3. รัน Service
+```bash
+go run ./cmd/api
+```
+*(แอปจะทำงานที่พอร์ต `8080` เป็นค่าปริยาย)*
+
+---
+
+## ⚙️ Environment Variables (ตั้งค่า)
+
+คุณสามารถตั้งค่า Environment หรือ config ระบบ ได้ตามตัวแปรนี้:
+
+- `APP_PORT` (default: `8080`)
+- `APP_ENV` (เช่น `production` จะบังคับใช้ Secure Cookie)
+- `DB_DSN` (default: `host=localhost user=auth password=auth dbname=auth port=5432...`)
+- `APP_CORS_ORIGIN` (default: `http://localhost:3000`)
 - `JWT_SECRET` (default: `dev-secret-change-me`)
 - `JWT_EXPIRES_IN_MINUTES` (default: `60`)
 - `JWT_REFRESH_SECRET` (default: `dev-refresh-secret-change-me`)
-- `JWT_REFRESH_EXPIRES_IN_MINUTES` (default: `10080`)
-- `APP_CORS_ORIGIN` (default: `http://localhost:3000`)
-- `DB_DSN` (default: `host=localhost user=auth password=auth dbname=auth port=5432 sslmode=disable TimeZone=UTC`)
+- `JWT_REFRESH_EXPIRES_IN_MINUTES` (default: `10080` = 7 วัน)
 
-Optional seed user for login:
+**การ Seed ข้อมูลเบื้องต้น (ทิ้งไว้เป็น Optional):**
+- `AUTH_SEED_EMAIL` เเละ `AUTH_SEED_PASSWORD` (ถ้าระบุระบบจะสร้าง user ให้อัตโนมัติในตอนเปิดแอป)
 
-- `AUTH_SEED_EMAIL`
-- `AUTH_SEED_PASSWORD`
+---
 
-## Endpoints
+## 📡 API Endpoints
 
-- `GET /health`
-- `GET /graphql`
-- `POST /graphql`
-- `POST /api/v1/auth/register`
-- `POST /api/v1/auth/login`
-- `POST /api/v1/auth/refresh`
-- `POST /api/v1/auth/logout`
-- `GET /api/v1/auth/me`
-- `POST /api/v1/storages` (requires `access_token` cookie)
-- `GET /api/v1/storages` (requires `access_token` cookie)
+| Method | Path | Description | Access | 
+|--------|------|-------------|---|
+| `GET` | `/health` | Health check (System) | Public |
+| `POST` | `/api/v1/auth/register` | สมัครสมาชิก | Public |
+| `POST` | `/api/v1/auth/login` | เข้าสู่ระบบ | Public |
+| `POST` | `/api/v1/auth/refresh` | ต่ออายุ Token Session | Public (ใช้ Cookie) |
+| `POST` | `/api/v1/auth/logout` | ออกจากระบบ | Public (ลบ Cookie) |
+| `GET` | `/api/v1/auth/me` | ดูข้อมูลโปรไฟล์ปัจจุบัน | **Protected** |
+| `POST` | `/api/v1/storages` | สร้าง Storage ใหม่ | **Protected** |
+| `GET` | `/api/v1/storages` | ดู Storage ทั้งหมดของตัวเอง | **Protected** |
+| `GET` | `/api/v1/storages/:id` | ดูรายละเอียด Storage | **Protected** |
+| `DELETE`| `/api/v1/storages/:id` | ลบ Storage | **Protected** |
+| `POST` | `/api/v1/storages/:id/items` | เพิ่ม Item ใน Storage | **Protected** |
+| `GET` | `/api/v1/storages/:id/items` | ลิสต์ Items ใน Storage | **Protected** |
+| `PATCH` | `/api/v1/storages/:id/items/:itemId/tags`| แก้ไข Tags ของ Item | **Protected** |
+| `DELETE`| `/api/v1/storages/:id/items/:itemId`| ลบ Item ทิ้ง | **Protected** |
 
-Auth ใช้ REST API เท่านั้น ส่วน GraphQL (`/graphql`) แยกไว้สำหรับ use case อื่น.
-Auth persistence ใช้ PostgreSQL ผ่าน GORM (`auth_users` table)
-
-## Database Schema (Redesigned)
-
-Migration อยู่ที่ `DB/migrations` โดยโครงสร้างหลักแบ่งเป็น:
-
-- `auth_users`: ผู้ใช้งานระบบ auth
-- `auth_user_profiles`: โปรไฟล์ผู้ใช้แบบ 1:1 กับ `auth_users`
-- `auth_refresh_tokens`: เก็บ refresh token แบบ hash เพื่อรองรับ revocation/session management
-- `storages`: ข้อมูล storage ของผู้ใช้ (1 ผู้ใช้มีหลาย storage ได้)
-- `storage_items`: รายการ item ภายใน storage
-- `storage_tags`: master tag
-- `storage_item_tags`: ตารางเชื่อม many-to-many ระหว่าง item และ tag
-
-หมายเหตุ:
-
-- ใช้ `UUID` เป็น primary key ทุกตารางหลัก
-- ใช้ `TIMESTAMPTZ` สำหรับ field เวลาเพื่อให้ timezone-safe
-- ใช้ `ON DELETE CASCADE` ในความสัมพันธ์หลักเพื่อลด orphan rows
-
-## Register / Login Payload
-
-```json
-{
-  "email": "user@example.com",
-  "password": "secret123"
-}
-```
-
-`register` และ `login` จะคืนค่า `accessToken`, `refreshToken`, `user` และ set `HttpOnly` cookies.
-
-## Refresh Token
-
-`POST /api/v1/auth/refresh` จะอ่าน `refresh_token` cookie และออก token ใหม่
-
-## Me Endpoint
-
-`GET /api/v1/auth/me` ต้องมี `access_token` cookie ที่ยัง valid.
-
-## Create Storage Payload
-
-```json
-{
-  "name": "Main Bucket",
-  "path": "/data/main"
-}
-```
-
-ใช้ cookie ที่ได้จาก REST auth เรียก storage endpoints ต่อได้ทันที.
+> บริการนี้ติดต่อกับ Client ผ่าน **HttpOnly cookie** อัตโนมัติ (`access_token` เเละ `refresh_token`) ช่วยลดความเสี่ยงจากการถูกขโมย Token ฝั่ง Frontend

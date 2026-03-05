@@ -1,48 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# my-storage (Next.js Application)
 
-## Getting Started
+โปรเจกต์หน้าเว็บแอปพลิเคชัน (Frontend) หลักของระบบ Auth & File Storage ที่ถูกสร้างขึ้นด้วย **[Next.js](https://nextjs.org)** (App Router)
 
-First, run the development server:
+แอปพลิเคชันตัวนี้ทำงานประสานกับ Backend `my-storage-service` เพื่อใช้จัดการบัญชี (Register, Login) และจัดการคลังไฟล์ (Storage Buckets & Items) ผ่าน HTTP HttpOnly Cookies
 
+---
+
+## 🚀 การเริ่มต้นระบบ (Getting Started)
+
+ระบบนี้ใช้ `pnpm` เป็น Package Manager หลัก
+
+### 1. ติดตั้ง Dependencies
 ```bash
-pnpm dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
-
-## Scripts
-
-```bash
-pnpm dev
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm format
-```
-
-## Environment
-
-Copy the example env file and adjust values as needed:
-
+### 2. ตั้งค่า Environment Variables
+ทำการคัดลอกไฟล์ `.env.example` ไปเป็น `.env.local` เพื่อใช้งาน:
 ```bash
 cp .env.example .env.local
 ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. รัน Development Server
+```bash
+pnpm dev
+```
+แล้วเปิด [http://localhost:3000](http://localhost:3000) บน Browser เพื่อเริ่มประเมินผล! 🎉
 
-## Learn More
+หน้าเว็บจะอัปเดตอัตโนมัติ (Fast Refresh) ทุกครั้งที่คุณแก้ไขไฟล์
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠 คำสั่ง (Scripts) ที่ใช้งานได้
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Command | รายละเอียด |
+|---|---|
+| `pnpm dev` | รัน Next.js development server |
+| `pnpm build` | Build โปรเจกต์เตรียมสำหรับ Production |
+| `pnpm start` | รัน Web Server หลังจากที่ Build แล้ว |
+| `pnpm lint` | ตรวจสอบ Code Style ด้วย ESLint |
+| `pnpm format` | จัด Format ไฟล์ผ่าน Prettier |
+| `pnpm typecheck` | ตรวจสอบ TypeScript Types ภายในโปรเจกต์ |
+| `pnpm test` | รัน Unit Tests (ถ้ามี) |
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📚 แหล่งเรียนรู้เพิ่มเติมสำหรับ Next.js
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+ลองทำความเข้าใจเพิ่มเติมเกี่ยวกับ Next.js ได้จากพื้นที่เหล่านี้:
+
+- [Next.js Documentation](https://nextjs.org/docs) - เรียนรู้ฟีเจอร์ใหม่ๆ 
+- [Learn Next.js](https://nextjs.org/learn) - Tutorial ปฏิบัติจริง
+- [The Next.js GitHub repo](https://github.com/vercel/next.js)
