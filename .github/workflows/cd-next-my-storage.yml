@@ -72,20 +72,27 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: AWS_REGION,ECR_REGISTRY,IMAGE
+          # เราจะส่งเลข Account ID เข้าไปด้วยเพื่อสร้าง URI
           script: |
-            # Log in to ECR (EC2 must have AWS CLI installed)
-            aws ecr get-login-password --region "$AWS_REGION" \
-              | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+            # 1. สร้างตัวแปรขึ้นมาใหม่ข้างใน script เลยเพื่อความชัวร์
+            # ดึงเลข Account ID จากกุญแจ AWS ที่เรามี
+            ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+            REGISTRY="${ACCOUNT_ID}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
+            IMAGE="${REGISTRY}/${{ secrets.ECR_REPOSITORY }}:latest"
 
-            # Pull the new image
+            echo "Deploying image: $IMAGE"
+
+            # 2. Log in to ECR
+            aws ecr get-login-password --region "${{ secrets.AWS_REGION }}" | docker login --username AWS --password-stdin "$REGISTRY"
+
+            # 3. Pull the new image
             docker pull "$IMAGE"
 
-            # Stop and remove the old container (ignore errors if not running)
+            # 4. Stop and remove the old container
             docker stop my-storage || true
-            docker rm   my-storage || true
+            docker rm my-storage || true
 
-            # Start the new container
+            # 5. Start the new container
             docker run -d \
               --name my-storage \
               --restart unless-stopped \
@@ -93,9 +100,5 @@ jobs:
               -e NODE_ENV=production \
               "$IMAGE"
 
-            # Clean up dangling images
+            # 6. Clean up
             docker image prune -f
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          ECR_REGISTRY: ${{ needs.build-and-push.outputs.ecr_registry }}
-          IMAGE: ${{ needs.build-and-push.outputs.image }}
