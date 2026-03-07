@@ -32,6 +32,8 @@ services:
       JWT_REFRESH_SECRET: '${JWT_REFRESH_SECRET:-change-me-refresh}'
       JWT_EXPIRES_IN_MINUTES: '${JWT_EXPIRES_IN_MINUTES:-60}'
       JWT_REFRESH_EXPIRES_IN_MINUTES: '${JWT_REFRESH_EXPIRES_IN_MINUTES:-10080}'
+      AUTH_SEED_EMAIL: '${AUTH_SEED_EMAIL:-demo@example.com}'
+      AUTH_SEED_PASSWORD: '${AUTH_SEED_PASSWORD:-password123}'
     ports:
       - '8080:8080'
     depends_on:

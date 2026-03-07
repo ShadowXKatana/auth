@@ -21,18 +21,19 @@ CREATE TABLE IF NOT EXISTS auth_user_profiles (
     CONSTRAINT fk_auth_user_profiles_user FOREIGN KEY (user_id) REFERENCES auth_users (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS storage_items (
+CREATE TABLE IF NOT EXISTS items (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     storage_id UUID NOT NULL,
     name VARCHAR(255) NOT NULL,
-    value NUMERIC(18,2),
+    size_mb DOUBLE PRECISION NOT NULL DEFAULT 0,
+    tags TEXT NOT NULL DEFAULT '',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT fk_storage_items_storage FOREIGN KEY (storage_id) REFERENCES storages (id) ON DELETE CASCADE
+    CONSTRAINT fk_items_storage FOREIGN KEY (storage_id) REFERENCES storages (id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_storage_items_storage_id ON storage_items (storage_id);
-CREATE INDEX IF NOT EXISTS idx_storage_items_name ON storage_items (name);
+CREATE INDEX IF NOT EXISTS idx_items_storage_id ON items (storage_id);
+CREATE INDEX IF NOT EXISTS idx_items_name ON items (name);
 
 CREATE TABLE IF NOT EXISTS storage_tags (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -45,6 +46,6 @@ CREATE TABLE IF NOT EXISTS storage_item_tags (
     storage_tag_id UUID NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT pk_storage_item_tags PRIMARY KEY (storage_item_id, storage_tag_id),
-    CONSTRAINT fk_storage_item_tags_item FOREIGN KEY (storage_item_id) REFERENCES storage_items (id) ON DELETE CASCADE,
+    CONSTRAINT fk_storage_item_tags_item FOREIGN KEY (storage_item_id) REFERENCES items (id) ON DELETE CASCADE,
     CONSTRAINT fk_storage_item_tags_tag FOREIGN KEY (storage_tag_id) REFERENCES storage_tags (id) ON DELETE CASCADE
 );

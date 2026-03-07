@@ -2,7 +2,9 @@ package domain
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"strings"
 	"time"
 )
 
@@ -19,6 +21,38 @@ type Item struct {
 }
 
 func (Item) TableName() string { return "items" }
+
+// MarshalJSON serializes Tags as a []string instead of a raw comma-separated string.
+func (i Item) MarshalJSON() ([]byte, error) {
+	type Alias struct {
+		ID        string    `json:"ID"`
+		StorageID string    `json:"StorageID"`
+		Name      string    `json:"Name"`
+		SizeMb    float64   `json:"SizeMb"`
+		Tags      []string  `json:"Tags"`
+		CreatedAt time.Time `json:"CreatedAt"`
+		UpdatedAt time.Time `json:"UpdatedAt"`
+	}
+
+	tags := []string{}
+	if i.Tags != "" {
+		for _, t := range strings.Split(i.Tags, ",") {
+			if trimmed := strings.TrimSpace(t); trimmed != "" {
+				tags = append(tags, trimmed)
+			}
+		}
+	}
+
+	return json.Marshal(Alias{
+		ID:        i.ID,
+		StorageID: i.StorageID,
+		Name:      i.Name,
+		SizeMb:    i.SizeMb,
+		Tags:      tags,
+		CreatedAt: i.CreatedAt,
+		UpdatedAt: i.UpdatedAt,
+	})
+}
 
 type ItemRepository interface {
 	Create(ctx context.Context, item Item) (Item, error)
