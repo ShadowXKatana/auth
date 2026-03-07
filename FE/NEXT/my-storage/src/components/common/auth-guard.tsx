@@ -12,11 +12,10 @@ type AuthGuardProps = {
 export const AuthGuard = ({ children }: AuthGuardProps) => {
     const router = useRouter()
     const { isLoggedIn, setUser } = useAuthStore()
-    const [checking, setChecking] = useState(true)
+    const [checking, setChecking] = useState(!isLoggedIn)
 
     useEffect(() => {
         if (isLoggedIn) {
-            setChecking(false)
             return
         }
 
