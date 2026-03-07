@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -71,10 +72,24 @@ func main() {
 
 func getDBDSN() string {
 	dsn := os.Getenv("DB_DSN")
-	if dsn == "" {
+	if dsn != "" {
+		return dsn
+	}
+
+	host := os.Getenv("POSTGRES_HOST")
+	port := os.Getenv("POSTGRES_PORT")
+	user := os.Getenv("POSTGRES_USER")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	dbname := os.Getenv("POSTGRES_DB")
+
+	// If any required var is missing, return fallback or error
+	if host == "" || port == "" || user == "" || password == "" || dbname == "" {
+		log.Println("Database configuration missing in env. Falling back to local default...")
 		return "host=localhost user=auth password=auth dbname=auth port=5432 sslmode=disable TimeZone=UTC"
 	}
-	return dsn
+
+	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
+		host, user, password, dbname, port)
 }
 
 func getJWTSecret() string {
