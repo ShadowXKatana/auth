@@ -25,9 +25,6 @@ jobs:
     name: Build & Push to ECR
     runs-on: ubuntu-latest
 
-    outputs:
-      image: ${{ steps.build-image.outputs.image }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -81,8 +78,15 @@ jobs:
 
       - name: Deploy to EKS
         env:
-          IMAGE: ${{ needs.build-and-push.outputs.image }}
+          IMAGE_TAG: ${{ github.sha }}
+          ECR_REPOSITORY: ${{ secrets.GO_ECR_REPOSITORY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
+          AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          export IMAGE="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          
+          # Replace $IMAGE in deployment.yaml and apply
           envsubst '$IMAGE' < BE/GO/my-storage-service/k8s/deployment.yaml | kubectl apply -f -
           kubectl apply -f BE/GO/my-storage-service/k8s/service.yaml
           kubectl rollout status deployment/go-my-storage --timeout=120s
