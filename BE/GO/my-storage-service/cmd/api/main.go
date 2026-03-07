@@ -147,3 +147,5 @@ func seedDefaultUser(uc usecase.UserUsecase) {
 		Password: password,
 	})
 }
+
+// test
