@@ -89,4 +89,4 @@ jobs:
           # Replace $IMAGE in deployment.yaml and apply
           envsubst '$IMAGE' < BE/GO/my-storage-service/k8s/deployment.yaml | kubectl apply -f -
           kubectl apply -f BE/GO/my-storage-service/k8s/service.yaml
-          kubectl rollout status deployment/go-my-storage --timeout=120s
+          kubectl rollout status deployment/go-my-storage -n my-storage --timeout=120s
