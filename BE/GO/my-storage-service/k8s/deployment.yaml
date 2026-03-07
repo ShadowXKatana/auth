@@ -47,7 +47,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: go-my-storage-secret
-                  key: JWT_SECRETJWT_REFRESH_SECRET
+                  key: JWT_REFRESH_SECRET
           resources:
             requests:
               cpu: "100m"
