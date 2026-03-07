@@ -1,0 +1,40 @@
+name: CI – Go my-storage-service
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - dev
+
+permissions:
+  contents: read
+
+jobs:
+  vet-build-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BE/GO/my-storage-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: BE/GO/my-storage-service/go.mod
+          cache-dependency-path: BE/GO/my-storage-service/go.sum
+
+      - name: Download modules
+        run: go mod download
+
+      - name: Run vet
+        run: go vet ./...
+
+      - name: Build
+        run: go build ./...
+
+      - name: Run tests
+        run: go test ./...
