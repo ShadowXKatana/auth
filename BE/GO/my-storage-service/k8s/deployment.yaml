@@ -1,0 +1,68 @@
+# Prerequisites – create the following Kubernetes Secret before the first deploy:
+#
+#   kubectl create secret generic go-my-storage-secret \
+#     --from-literal=DB_DSN='host=<host> user=<user> password=<pass> dbname=<db> port=5432 sslmode=require' \
+#     --from-literal=JWT_SECRET='<access-token-secret>' \
+#     --from-literal=JWT_REFRESH_SECRET='<refresh-token-secret>'
+#
+# The ${IMAGE} placeholder is replaced at deploy time by the CD workflow using envsubst.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-my-storage
+  labels:
+    app: go-my-storage
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: go-my-storage
+  template:
+    metadata:
+      labels:
+        app: go-my-storage
+    spec:
+      containers:
+        - name: go-my-storage
+          image: ${IMAGE}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_ENV
+              value: "production"
+            - name: APP_PORT
+              value: "8080"
+            - name: DB_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: go-my-storage-secret
+                  key: DB_DSN
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: go-my-storage-secret
+                  key: JWT_SECRET
+            - name: JWT_REFRESH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: go-my-storage-secret
+                  key: JWT_REFRESH_SECRET
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20

@@ -1,0 +1,88 @@
+name: CD – Go my-storage-service → AWS EKS
+
+# Required GitHub Secrets:
+#   AWS_ACCESS_KEY_ID        – IAM user access key with ECR push & EKS access permissions
+#   AWS_SECRET_ACCESS_KEY    – IAM user secret key
+#   AWS_REGION               – e.g. ap-southeast-1
+#   GO_ECR_REPOSITORY        – ECR repository name, e.g. go-my-storage
+#   EKS_CLUSTER_NAME         – EKS cluster name, e.g. my-cluster
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'BE/GO/my-storage-service/**'
+  #     - '.github/workflows/cd-go-my-storage.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  # ── 1. Build & push Docker image to Amazon ECR ──────────────────────────────
+  build-and-push:
+    name: Build & Push to ECR
+    runs-on: ubuntu-latest
+
+    outputs:
+      image: ${{ steps.build-image.outputs.image }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.GO_ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            BE/GO/my-storage-service
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+  # ── 2. Deploy to AWS EKS ─────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to EKS
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig \
+            --region "${{ secrets.AWS_REGION }}" \
+            --name "${{ secrets.EKS_CLUSTER_NAME }}"
+
+      - name: Deploy to EKS
+        env:
+          IMAGE: ${{ needs.build-and-push.outputs.image }}
+        run: |
+          envsubst '$IMAGE' < BE/GO/my-storage-service/k8s/deployment.yaml | kubectl apply -f -
+          kubectl apply -f BE/GO/my-storage-service/k8s/service.yaml
+          kubectl rollout status deployment/go-my-storage --timeout=120s
