@@ -1,8 +1,8 @@
 name: CD – Go my-storage-service → AWS EKS
 
 # Required GitHub Secrets:
-#   AWS_ACCESS_KEY_ID        – IAM user access key with ECR push & EKS access permissions
-#   AWS_SECRET_ACCESS_KEY    – IAM user secret key
+#   AWS_CLI_ACCESS_KEY_ID        – IAM user access key with ECR push & EKS access permissions
+#   AWS_CLI_SECRET_ACCESS_KEY    – IAM user secret key
 #   AWS_REGION               – e.g. ap-southeast-1
 #   GO_ECR_REPOSITORY        – ECR repository name, e.g. go-my-storage
 #   EKS_CLUSTER_NAME         – EKS cluster name, e.g. my-cluster
@@ -35,8 +35,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_CLI_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_CLI_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -69,8 +69,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_CLI_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_CLI_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig for EKS
