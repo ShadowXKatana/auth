@@ -10,12 +10,13 @@ name: CD – Next.js my-storage → AWS EC2
 #   EC2_SSH_KEY              – PEM private key for SSH access (-----BEGIN RSA PRIVATE KEY-----)
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'FE/NEXT/my-storage/**'
-      - '.github/workflows/cd-next-my-storage.yml'
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'FE/NEXT/my-storage/**'
+  #     - '.github/workflows/cd-next-my-storage.yml'
 
 permissions:
   contents: read
