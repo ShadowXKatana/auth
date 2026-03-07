@@ -1,0 +1,78 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Home page matches snapshot 1`] = `
+<DocumentFragment>
+  <main
+    class="mx-auto w-full max-w-3xl p-6 md:p-10"
+  >
+    <header
+      class="mb-6"
+    >
+      <div
+        class="flex items-center justify-between"
+      >
+        <div>
+          <h1
+            class="text-2xl font-semibold tracking-tight"
+          >
+            My Storage
+          </h1>
+          <p
+            class="mt-1 text-sm text-foreground/80"
+          >
+            Welcome, snapshot@example.com
+          </p>
+        </div>
+        <button
+          class="rounded-lg border border-black/15 px-3 py-1.5 text-sm font-medium transition hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+          type="button"
+        >
+          Logout
+        </button>
+      </div>
+    </header>
+    <div
+      class="space-y-3"
+    >
+      <section
+        class="rounded-xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black/20"
+      >
+        <a
+          class="block"
+          href="/profile"
+        >
+          <p
+            class="text-sm font-medium hover:underline"
+          >
+            Profile
+          </p>
+          <p
+            class="mt-1 text-xs text-foreground/60"
+          >
+            View your account details
+          </p>
+        </a>
+      </section>
+      <section
+        class="rounded-xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black/20"
+      >
+        <a
+          class="block"
+          href="/storage"
+        >
+          <p
+            class="text-sm font-medium hover:underline"
+          >
+            Storage
+          </p>
+          <p
+            class="mt-1 text-xs text-foreground/60"
+          >
+            Manage your storages and items
+          </p>
+        </a>
+      </section>
+    </div>
+  </main>
+</DocumentFragment>
+`;

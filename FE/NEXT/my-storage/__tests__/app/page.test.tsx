@@ -1,9 +1,26 @@
 import Home from '@/app/page'
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
+
+jest.mock('@/components/common/auth-guard', () => ({
+  AuthGuard: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}))
+
+jest.mock('@/store/useAuthStore', () => ({
+  useAuthStore: () => ({
+    user: { id: '1', email: 'snapshot@example.com' },
+    clearUser: jest.fn(),
+  }),
+}))
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    replace: jest.fn(),
+  }),
+}))
 
 describe('Home page', () => {
-  it('renders starter heading', () => {
-    render(<Home />)
-    expect(screen.getByText('To get started, edit the page.tsx file.')).toBeInTheDocument()
+  it('matches snapshot', () => {
+    const { asFragment } = render(<Home />)
+    expect(asFragment()).toMatchSnapshot()
   })
 })
